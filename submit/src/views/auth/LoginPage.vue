@@ -29,10 +29,8 @@
                         </router-link>      
                      </v-card-actions>
                   </v-card>                   
-               </v-flex>
-              
-            </v-layout>           
-            
+               </v-flex>              
+            </v-layout>            
          </v-container>
       </v-content>
    </v-app>
@@ -40,16 +38,18 @@
 
 <script>
 import axios from "axios";
-import SocialLogin from '../components/SocialLoginPage.vue'
+import SocialLogin from '../../components/SocialLoginPage.vue'
+import { mapMutations } from "vuex";
+
 // import { reactive } from "vue";
 
 export default {
   data() {
     return {      
-      account: {
-        id: null,
-        name: "",
-      },
+      // account: {
+      //   id: null,
+      //   name: "",
+      // },
       form: {        
         loginEmail: "",
       }     
@@ -60,6 +60,7 @@ export default {
   },
 
   methods : {
+    ...mapMutations(["removeUser"]),
     login() {
       const args = {
         // loginId: state.form.loginId,
@@ -69,11 +70,11 @@ export default {
       axios
         .post("http://localhost:3000/api/auth/signin", args)
         .then((res) => {
-          alert("Logged in successfully");
-          this.account = res.data;
+          alert(res.data.message);          
+         
         })
         .catch(() => {
-          alert("Failed to log in. Confirm account info.");
+          alert("Failed to log in.");
         });
     },
 
@@ -86,19 +87,19 @@ export default {
       axios
         .post("http://localhost:3000/api/auth/signup", args)
         .then((res) => {
-          alert("registered in successfully");
-          this.account = res.data;
+          alert(res.data);          
         })
         .catch(() => {
-          alert("Failed to register. Confirm account info.");
+          alert("Failed to register.");
         });
     },
 
     logout() {
-      axios.delete("/api/account").then(() => {
+      //delete user and token info
+      axios.post("/api/auth/signout").then(() => {
         alert("Logged out.");
-        this.account.id = null;
-        this.account.name = "";
+        this.$store.dispatch('removeUser');
+        this.$store.dispatch('removeToken');
       });
     }
   } 

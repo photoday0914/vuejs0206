@@ -14,7 +14,7 @@
             class="ma-2"  
             outlined                      
             color="#009688"       
-            >SingIn
+            >SignIn
             </v-btn>
          </router-link>
          <router-link to="/register" tag="div">

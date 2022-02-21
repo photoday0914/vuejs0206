@@ -33,7 +33,7 @@
                           </v-container>
                           <v-file-input hide-input accept="image/png, image/jpeg, image/bmp" v-model="chosenfile" @change="uploadImage(commands.image)">                              
                           </v-file-input>
-                        </div>
+                        </div>   
                     </editor-menu-bar>
                   </v-row>
                   <v-row>
@@ -48,7 +48,7 @@
         </v-row>
         <v-container >
           <v-col align="center">
-            <v-btn rounded color="primary" dark @click="postPost">
+            <v-btn rounded color="primary" dark @click="updatePost">
               Publish
             </v-btn>
           </v-col>
@@ -66,6 +66,7 @@ import { Heading,
 import Header from '../components/Header.vue'
 import Bubble from '../components/Bubble.vue'
 import { mapGetters} from "vuex";
+// import router from '../router';
 // import { Heading, Underline} from 'tiptap-extensions';
 export default {
   components: {
@@ -76,7 +77,6 @@ export default {
   },
   data() {
     return {
-      
       editor: null,
       isTextfield: false,
       imageUrl: '',
@@ -85,10 +85,17 @@ export default {
       
     }
   },
-  mounted() {
-    
+  async mounted() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const postId = urlParams.get('postId')
+   
+    // let postId = this.$route.query.postId
+    const {data} = await this.$Axios.get('http://localhost:3000/api/post/'+postId);
+    this.content2 = data.content;
+    // console.log("data:"+data);
     this.editor = new Editor({
-        content: '',
+        content: data.content,
         extensions:[
             new Heading({levels: [1,2,3]}),
             new Bold(),
@@ -97,7 +104,7 @@ export default {
         ],
         onUpdate:({getHTML}) => {
           this.content2 = getHTML();
-          console.log(this.content2)
+          
         }
       })
   },
@@ -122,7 +129,7 @@ export default {
               'Content-Type': 'multipart/form-data'
               }
             });
-            console.log('Write:' + data.photo);
+            // console.log('Write:' + data.photo);
           command({src: data.photo});
           // this.$store.dispatch('setAvatar', data.photo)
         } catch(err) {
@@ -130,14 +137,16 @@ export default {
         }
       },
 
-      async postPost() {
+      async updatePost() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const postId = urlParams.get('postId')
         const body = {
           title: this.getStoryTitle,
           content: this.content2
         }
-        await this.$Axios.post('http://localhost:3000/api/posts/'.concat(this.getUser.id), body)
-        // console.log(this.content2);
-        // console.log(this.getStoryTitle);
+        // console.log('http://localhost:3000/api/post/update/'+postId);
+        await this.$Axios.post('http://localhost:3000/api/post/update/'+postId, body)
       }
   }
 }
