@@ -183,7 +183,7 @@
          })
          .catch(err => {
             console.log(err)
-            alert('에러');              
+            alert('error');              
             
          })
       }
