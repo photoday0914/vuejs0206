@@ -72,7 +72,7 @@
                               </v-col>
                            </v-row>
                            <v-row class="pa-md-4 mx-lg-auto">
-                              <h2>{{post.title}}</h2>
+                              <h2 v-html="post.title"></h2>
                            </v-row> 
                            <v-row class="pa-md-4 mx-lg-auto">
                               {{post.date}}

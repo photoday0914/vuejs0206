@@ -41,6 +41,21 @@
                           <editor-content class="editor-box" :editor="editor"/>
                       </v-col>
                   </v-row>
+                  <v-row>
+                    <v-container class="d-flex">
+                      <v-combobox v-model="chips" :items="items" chips clearable
+                        label="Add hashtags"
+                        multiple
+                        prepend-icon="mdi-filter-variant"
+                        solo>
+                        <template v-slot:selection="{ attrs, item, select, selected }">
+                          <v-chip v-bind="attrs" :input-value="selected" close @click="select" @click:close="remove(item)">
+                            <strong>{{ item }}</strong>&nbsp;                            
+                          </v-chip>
+                        </template>
+                      </v-combobox>
+                    </v-container>
+                  </v-row>
                 </v-container>
               </v-container>
             </v-col>
@@ -48,7 +63,7 @@
         </v-row>
         <v-container >
           <v-col align="center">
-            <v-btn rounded color="primary" dark @click="updatePost">
+            <v-btn large rounded color="primary" dark @click="updatePost">
               Publish
             </v-btn>
           </v-col>
@@ -81,8 +96,9 @@ export default {
       isTextfield: false,
       imageUrl: '',
       chosenfile: null,
-      content2:''
-      
+      content2:'',
+      chips: [],
+      items: [],
     }
   },
   async mounted() {
@@ -95,18 +111,20 @@ export default {
     this.content2 = data.content;
     // console.log("data:"+data);
     this.editor = new Editor({
-        content: data.content,
-        extensions:[
-            new Heading({levels: [1,2,3]}),
-            new Bold(),
-            new Underline(),
-            new Image(),
-        ],
-        onUpdate:({getHTML}) => {
-          this.content2 = getHTML();
-          
-        }
-      })
+      content: data.content,
+      extensions:[
+          new Heading({levels: [1,2,3]}),
+          new Bold(),
+          new Underline(),
+          new Image(),
+      ],
+      onUpdate:({getHTML}) => {
+        this.content2 = getHTML();
+        
+      }
+    });
+    this.getHashtags(postId);
+    
   },
   computed: {
     ...mapGetters(['getUser', 'getStoryTitle','getStoryContent'])      
@@ -143,10 +161,22 @@ export default {
         const postId = urlParams.get('postId')
         const body = {
           title: this.getStoryTitle,
-          content: this.content2
+          content: this.content2,
+          hashtags: this.chips
         }
         // console.log('http://localhost:3000/api/post/update/'+postId);
         await this.$Axios.post('http://localhost:3000/api/post/update/'+postId, body)
+      },
+
+      remove (item) {
+        this.chips.splice(this.chips.indexOf(item), 1)
+        this.chips = [...this.chips]
+      },
+      // "/api/hashtags/:postId"
+      async getHashtags(postId) {
+        const {data} = await this.$Axios.get("http://localhost:3000/api/hashtags/"+postId);
+        console.log(data);
+        this.chips = data;
       }
   }
 }

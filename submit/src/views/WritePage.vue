@@ -41,11 +41,27 @@
                           <editor-content class="editor-box" :editor="editor"/>
                       </v-col>
                   </v-row>
+                  <v-row>
+                    <v-container class="d-flex">
+                      <v-combobox v-model="chips" :items="items" chips clearable
+                        label="Add hashtags"
+                        multiple
+                        prepend-icon="mdi-filter-variant"
+                        solo>
+                        <template v-slot:selection="{ attrs, item, select, selected }">
+                          <v-chip v-bind="attrs" :input-value="selected" close @click="select" @click:close="remove(item)">
+                            <strong>{{ item }}</strong>&nbsp;                            
+                          </v-chip>
+                        </template>
+                      </v-combobox>
+                    </v-container>
+                  </v-row>
                 </v-container>
               </v-container>
             </v-col>
             <v-col cols="12" md="2"></v-col>
         </v-row>
+        
         <v-container >
           <v-col align="center">
             <v-btn rounded color="primary" dark @click="postPost">
@@ -76,13 +92,13 @@ export default {
   },
   data() {
     return {
-      
       editor: null,
       isTextfield: false,
       imageUrl: '',
       chosenfile: null,
-      content2:''
-      
+      content2:'',
+      chips: [],
+      items: [],
     }
   },
   mounted() {
@@ -122,7 +138,7 @@ export default {
               'Content-Type': 'multipart/form-data'
               }
             });
-            console.log('Write:' + data.photo);
+            
           command({src: data.photo});
           // this.$store.dispatch('setAvatar', data.photo)
         } catch(err) {
@@ -133,8 +149,11 @@ export default {
       async postPost() {
         const body = {
           title: this.getStoryTitle,
-          content: this.content2
+          content: this.content2,
+          hashtags: this.chips
         }
+        // console.log(this.chips);
+        
         await this.$Axios.post('http://localhost:3000/api/posts/'.concat(this.getUser.id), body)
         // console.log(this.content2);
         // console.log(this.getStoryTitle);

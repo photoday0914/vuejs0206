@@ -13,6 +13,7 @@ import ProfilePage from './views/ProfilePage'
 import WritePage from './views/WritePage'
 import YourStoriesPage from './views/YourStoriesPage'
 import EditPage from './views/EditStoryPage'
+import ViewPage from './views/ViewStoryPage'
 
 import { refreshToken } from './service/login'
 
@@ -28,6 +29,7 @@ const routes = [
   { path: '/profile', component: ProfilePage, meta: { unauthorized : true }},
   { path: '/write', component: WritePage, meta: { unauthorized : true }},
   { path: '/edit', component: EditPage, meta: { unauthorized : true }},
+  { path: '/view', component: ViewPage, meta: { unauthorized : true }},
   { path: '/stories', component: YourStoriesPage, meta: { unauthorized : true }},
   // { path: '*', redirect: '/' }
 ];

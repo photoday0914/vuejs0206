@@ -12,8 +12,7 @@
                         <h1>Your Stories</h1>
                      </v-container>
                   </v-row>
-                  <v-container >                      
-                  
+                  <v-container >
                      <ul class="list-group" style="list-style: none;">
                         <li class="list-group-item" v-for="post in posts" :key="post.id">
                            <v-card color="grey lighten-4" flat tile class="ma-6">
@@ -26,10 +25,9 @@
                                              color="yellow darken-2"
                                           ></v-progress-linear>
                                        </template>
-
                                        <v-row dense align="center">
                                           <v-col cols="12" md="3">
-                                             <v-avatar>
+                                             <v-avatar class="ma-2">
                                                 <img src="{post.photo}">
                                              </v-avatar>
                                           </v-col>
@@ -51,12 +49,15 @@
                                                       <v-icon>fa-solid fa-trash-can</v-icon>
                                                    </v-btn>
                                                 </v-col>
-                                                
                                              </v-row>
                                           </v-col>
                                        </v-row>
-                                       <h2 style="border-margin: 10px" v-html="post.title"></h2>                                              
-                                       <span class="ma-6" v-html="post.content.substring(0, 6)">{{post.content.substring(0, 100)}}</span>
+                                       <v-row class="ma-5">
+                                          <v-container>
+                                             <h2 style="border-margin: 10px" v-html="post.title"></h2>
+                                          </v-container>                                           
+                                          <span class="ma-6" v-html="post.content.substring(0, 6)"></span>
+                                       </v-row>
                                     </v-container>
                                  </v-col>
                                  <!-- <v-col cols="12" md="2">
@@ -110,6 +111,9 @@ export default {
       // InfiniteLoading
    },
    methods: {
+      viewStory(postId){
+         router.push('/view?postId='+postId);
+      },
       editStory(postId) {         
          router.push('/edit?postId='+postId);
       },
