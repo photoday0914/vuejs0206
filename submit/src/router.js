@@ -10,10 +10,12 @@ import LoginRedirectPage from './views/auth/AuthRedirectPage'
 import OauthRedirectPage from './views/auth/OauthRedirectPage'
 import DashboardPage from './views/DashboardPage'
 import ProfilePage from './views/ProfilePage'
-import WritePage from './views/WritePage'
-import YourStoriesPage from './views/YourStoriesPage'
-import EditPage from './views/EditStoryPage'
-import ViewPage from './views/ViewStoryPage'
+import WritePage from './views/story/WritePage'
+import YourStoriesPage from './views/story/YourStoriesPage'
+import EditPage from './views/story/EditStoryPage'
+import ViewPage from './views/story/ViewStoryPage'
+import SearchPage from './views/SearchPage'
+import PublicProfilePage from './views/PublicProfilePage.vue'
 
 import { refreshToken } from './service/login'
 
@@ -22,15 +24,17 @@ Vue.use(VueRouter);
 const routes = [
   { path: '/', component: LandingPage, meta: { unauthorized : true } },
   { path: '/login', component: LoginPage, meta: { unauthorized : true } },
-  { path: '/register', component: RegisterPage },  
+  { path: '/register', component: RegisterPage, meta: { unauthorized : true } },  
   { path: '/login-redirect', component: LoginRedirectPage, meta: { unauthorized : true }},
   { path: '/oauth-redirect', component: OauthRedirectPage, meta: { unauthorized : true }},
-  { path: '/dashboard', component: DashboardPage, meta: { unauthorized : true }},
+  { path: '/dashboard', component: DashboardPage, meta: { unauthorized : false }},
   { path: '/profile', component: ProfilePage, meta: { unauthorized : true }},
   { path: '/write', component: WritePage, meta: { unauthorized : true }},
   { path: '/edit', component: EditPage, meta: { unauthorized : true }},
   { path: '/view', component: ViewPage, meta: { unauthorized : true }},
-  { path: '/stories', component: YourStoriesPage, meta: { unauthorized : true }},
+  { path: '/stories', component: YourStoriesPage, meta: { unauthorized : true }},  
+  { path: '/search', component: SearchPage, meta: { unauthorized : true }},
+  { path: '/public-profile', component: PublicProfilePage, meta: { unauthorized : true }}
   // { path: '*', redirect: '/' }
 ];
 

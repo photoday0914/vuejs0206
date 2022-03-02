@@ -49,6 +49,7 @@ export default {
             const {data} = await this.$Axios.get('http://localhost:3000/api/post/'+postId);
             title = data.title;
             console.log('data:'+postId + ':'+title);
+            this.$store.dispatch("setStoryTitle", title);
         }
         this.editor1 = new Editor({
             content:title,
@@ -60,13 +61,13 @@ export default {
 
             this.content1 = this.editor1.getHTML();
             this.$store.dispatch("setStoryTitle", this.content1)
-            // console.log(this.content1);
+            console.log(this.content1);
             
             }
         });
         
         
-        this.$store.dispatch("setStoryTitle", this.content1);
+        
        
     }
 };

@@ -1,6 +1,8 @@
 var passport         = require('passport');
 var GoogleStrategy   = require('passport-google-oauth2').Strategy;
+const config = require("../config/auth.config");
 const db = require("../models");
+const jwt = require("jsonwebtoken");
 const { user: User, refreshToken: RefreshToken } = db;
 
 passport.serializeUser(function(user, done) {
@@ -28,21 +30,21 @@ passport.use(new GoogleStrategy(
       where: {
         email: profile.email,
       }
-    }).then(async (user) => {
+    }).then(async (user1) => {
       //if user does not exist, register
-      if (!user) {
+      if (!user1) {
         await User.create({
           name: profile.displayName,
           email: profile.email,
           is_active: 1         
-        }).then(async user =>  {
+        }).then(async user2 =>  {
           //Generate refresh token and access token
-          const token = jwt.sign({ id: user.id }, config.secret, {
+          const token = jwt.sign({ id: user2.id }, config.secret, {
             expiresIn: config.jwtExpiration
           });
-          refreshToken = await RefreshToken.createToken(user);
+          refreshToken = await RefreshToken.createToken(user2);
           let info = {
-            user: user,
+            user: user2,
             accessToken: token,
             refreshToken: refreshToken
           }    
@@ -53,12 +55,15 @@ passport.use(new GoogleStrategy(
         });       
       } else {
         // Generate refresh token
-        refreshToken = await RefreshToken.createToken(user);     
+        refreshToken = await RefreshToken.createToken(user1);   
+        const token = jwt.sign({ id: user1.id }, config.secret, {
+          expiresIn: config.jwtExpiration
+        });  
         let info = {
-          user: user,
-          accessToken: accessToken,
+          user: user1,
+          accessToken: token,
           refreshToken: refreshToken
-        }    
+        };
         req.info = info;
       }
     }).catch(err => {

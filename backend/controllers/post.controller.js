@@ -1,7 +1,7 @@
 //Create
 const { post_hashtag, hashtag, post } = require("../models");
 const db = require("../models");
-const { refreshToken: RefreshToken, post: Post, hashtag:Hashtag, comment:Comment, user:User, post_hashtag:Post_hashtag } = db;
+const { refreshToken: RefreshToken, post: Post, hashtag:Hashtag, comment:Comment, user:User, post_hashtag:Post_hashtag, follow:Follow } = db;
 const { Op } = require("sequelize");
 
 
@@ -31,7 +31,70 @@ manageHashtag = (postId, hashtags) => {
     }
 };
 
+async function postsWithUserInfo(posts) {
+    let buffer = new Array();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    for (var post of posts)
+    {
+        await User.findOne({ 
+            where: {
+                id : post.user_id
+            }
+        }).then((user) => {
+            post.dataValues.name = user.name
+            post.dataValues.photo = user.photo
+
+            let dataBuffer = new Date(post.createdAt);
+            let str = dataBuffer.getFullYear()+', '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
+            post.dataValues.date = str;
+            buffer.push(post);
+        }).catch(err => {
+            return [];
+        })
+    }
+    return buffer;
+    // return 1;
+};
+
 module.exports = {
+    getPostWithTag(req, res) {
+        Post_hashtag.findAll({
+            where: {
+                hashtag_id: req.params.tagId
+            }
+        }).then(async (rows) => {
+            let buffer = new Array();
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            for (var row of rows)
+            {
+                await Post.findOne({
+                    where: {
+                        id: row.post_id
+                    }
+                }).then(async (post) => {
+                    if (post) {
+                        await User.findOne({ 
+                            where: {
+                                id : post.user_id
+                            }
+                        }).then((user) => {
+                            if (user) {
+                                post.dataValues.name = user.name
+                                post.dataValues.photo = user.photo
+        
+                                let dataBuffer = new Date(post.createdAt);
+                                let str = months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
+                                post.dataValues.date = str;
+                                buffer.push(post);
+                            }
+                        });
+                    }
+                });               
+            }
+            res.status(200).send (buffer);  
+        });     
+    },
+
     getTrending(req, res) {
         Post.findAll({
             order: [['clap_count', 'DESC']],
@@ -46,13 +109,15 @@ module.exports = {
                         id : post.user_id
                     }
                 }).then((user) => {
-                    post.dataValues.name = user.name
-                    post.dataValues.photo = user.photo
+                    if (user) {
+                        post.dataValues.name = user.name
+                        post.dataValues.photo = user.photo
 
-                    let dataBuffer = new Date(post.createdAt);
-                    let str = months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
-                    post.dataValues.date = str;
-                    buffer.push(post);
+                        let dataBuffer = new Date(post.createdAt);
+                        let str = months[dataBuffer.getMonth()]+ ' '+ (dataBuffer.getDate()+1).toString();
+                        post.dataValues.date = str;
+                        buffer.push(post);
+                    }
                 })
             }
             res.status(200).send (buffer);  
@@ -63,11 +128,11 @@ module.exports = {
         })
     },
 
-    getPosts(req, res) {
+    getPostsWithOffset(req, res) {
         Post.findAll({
             order: [['clap_count', 'DESC']],
             offset: parseInt(req.params.offset),
-            limit: 3,
+            limit: 5,
             
         }).then(async (posts) => {
             let buffer = new Array();
@@ -79,13 +144,15 @@ module.exports = {
                         id : post.user_id
                     }
                 }).then((user) => {
-                    post.dataValues.name = user.name
-                    post.dataValues.photo = user.photo
+                    if (user) {
+                        post.dataValues.name = user.name
+                        post.dataValues.photo = user.photo
 
-                    let dataBuffer = new Date(post.createdAt);
-                    let str = dataBuffer.getFullYear()+', '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
-                    post.dataValues.date = str;
-                    buffer.push(post);
+                        let dataBuffer = new Date(post.createdAt);
+                        let str = dataBuffer.getFullYear()+', '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDate().toString();
+                        post.dataValues.date = str;
+                        buffer.push(post);
+                    }
                 })
             }
             res.status(200).send (buffer);  
@@ -112,10 +179,12 @@ module.exports = {
             }).then((user) => {
                 post.dataValues.name = user.name
                 post.dataValues.photo = user.photo
-
+                post.dataValues.bio = user.bio
+                post.dataValues.follower_count = user.follower_count
                 let dataBuffer = new Date(post.createdAt);
                 let str = dataBuffer.getFullYear()+', '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
                 post.dataValues.date = str;
+                
                 // buffer.push(post);
             })
            
@@ -127,7 +196,7 @@ module.exports = {
         })
     },
 
-    getMyPosts(req, res) {
+    getPosts(req, res) {
         Post.findAll({
             where:{
                 user_id: req.params.userId
@@ -146,8 +215,13 @@ module.exports = {
                     post.dataValues.photo = user.photo
 
                     let dataBuffer = new Date(post.createdAt);
-                    let str = dataBuffer.getFullYear()+' '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDay().toString();
+                    let str = dataBuffer.getFullYear()+' '+ months[dataBuffer.getMonth()]+ ' '+ dataBuffer.getDate().toString();
                     post.dataValues.date = str;
+                    let pos = (post.dataValues.content.search("<img"));
+                    if (pos > 200 || pos == -1) post.dataValues.brief = post.dataValues.content.substring(0, 200)
+                    else  post.dataValues.brief = post.dataValues.content.substring(0, pos)
+                    let temp = post.dataValues.content.substr(pos);
+                    post.dataValues.imgUrl = temp.substr(10, temp.search("\">") - 10);
                     buffer.push(post);
                 })
             }
@@ -157,9 +231,7 @@ module.exports = {
                  err: err.message                 
                 });
         })
-    },
-
-    
+    },    
 
     postPost(req, res) {
         Post.create({
@@ -169,8 +241,18 @@ module.exports = {
         }
         ).then((post) => {
             // let buffer = new Array(req.body.hashtags);
-            this.manageHashtag(post.id, req.body.hashtags)
-            res.status(200).send (post);  
+            this.manageHashtag(post.id, req.body.hashtags);
+            Comment.create({
+                post_id: post.id,
+                user_id: req.params.userId,
+                lft: 1,
+                rgt: 2,
+                depth: 0,
+                clap_count: 0,
+                response_count: 0
+            }).then(() => {
+                res.status(200).send (post);  
+            })            
         }).catch(err => {
             res.status(500).send({
                  err: err.message                 
@@ -264,14 +346,81 @@ module.exports = {
         })
     },
 
+    search(req, res) {
+        switch(req.params.type){
+            case '0':
+                Post.findAll({
+                    where: {                        
+                        title:{
+                            [Op.substring]: req.query.keyword
+                        }
+                    }
+                }).then(async (posts) => {
+                    if(posts){                         
+                        await postsWithUserInfo(posts).then((data) => {
+                            res.status(200).send (data);
+                        });         
+                    }                    
+                });             
+                break;
+            case '1':
+                User.findAll({
+                    where: {                        
+                        name:{
+                            [Op.substring]: req.query.keyword
+                        }
+                    }
+                }).then(async (users) => {
+                    let buffer = new Array();
+                    for (let user of users)
+                    {
+                        // if (req.params.userId == user.id) user.dataValues.isFollow = true;
+                        // else {
+                            await Follow.findOne({
+                                where: {
+                                    follower_id: req.params.userId,
+                                    followed_id: user.id
+                                }
+                            }).then((follow) => {
+                                if(follow) {
+                                    user.dataValues.isFollow = true;
+                                } else user.dataValues.isFollow = false;
+                            }).catch(err => {
+                                res.status(500).send({
+                                    err: err.message                 
+                                    });
+                            })
+                        // }
+                        buffer.push(user);
+                    }
+                    if(users){
+                        res.status(200).send (buffer);
+                    }                    
+                });             
+                break;
+            case '2':
+                Hashtag.findAll({
+                    where: {
+                        hashtag: {
+                            [Op.substring]: req.query.keyword
+                        }
+                    }
+                }).then((hashtags) => {
+                    if (hashtags) {
+                        res.status(200).send(hashtags);
+                    }
+                });
+                break;
+        }
+    },
+
     searchPost(req, res) {        
         post_hashtag.findAll(
-            {
-                where: {
-                    hashtag_id: req.query.hashtag_id
-                }
+        {
+            where: {
+                hashtag_id: req.query.hashtag_id
             }
-        ).then(async (post_hashtags) => {
+        }).then(async (post_hashtags) => {
             let buffer = [];
             for (var i in post_hashtags)
             {

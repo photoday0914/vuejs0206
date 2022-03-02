@@ -1,31 +1,28 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import VueCookies from 'vue-cookies'
+import setup from './service/axios'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({ 
   state: {
     user: {
-      id: 1,
+      id: 0,
       username: '',
       bio: '',
       email: '',
       social_notification: false,
       photo:''
     },
-    menuItems: [
-      {title:'Write a Story', link:'/write'}, 
-      {title:'Settings', link:'/profile'},
-      {title:'Your Stories', link:'/stories'},
-      {title:'Sign out', link:'/logout'}
-    ],
+   
     storyTitle: '',
     storyContent: ''
   },
   mutations: {
     setStoryTitle(state, payload){
       state.storyTitle = payload;
+      console.log(payload);
     },
     setStoryContent(state, payload){
       state.storyContent = payload;
@@ -33,18 +30,14 @@ export default new Vuex.Store({
     setUser(state, payload) {
       const buffer = {
         id: payload.id,
-        username: payload.username,
+        name: payload.name,
         email: payload.email,
         bio: payload.bio,
         social_notification: payload.social_notification,
         photo: payload.photo
-      }
-      // state.user.username = payload.username;
-      // state.user.bio = payload.bio;
-      // state.user.email = payload.email;      
-      // state.user.social_notification = payload.social_notification;
+      }      
       state.user = buffer
-      console.log('state.user:',state.user);
+      // console.log('state.user:',state.user);
     },
     setToken(state, token) {
       VueCookies.set('token', token.token);
@@ -59,7 +52,8 @@ export default new Vuex.Store({
     removeToken() {
       VueCookies.remove('token');
       VueCookies.remove('refreshToken');
-    }
+    },
+    
   },
   actions: {
     setStoryTitle: ({commit}, payload) => {
@@ -82,7 +76,20 @@ export default new Vuex.Store({
     },
     setAvatar: ({commit}, photo) => {
       commit('setAvatar', photo)
+    },
+    getMe: () => {
+      return new Promise((resolve, reject) => {
+        setup.get("/api/users/me")
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        })
+      })
+     
     }
+
   },
   getters: {
     getStoryTitle(state){
@@ -94,9 +101,9 @@ export default new Vuex.Store({
     getUser(state) {      
       return state.user
     },
-    getmenuItems(state) {
-      return state.menuItems
-    },
+    // getmenuItems(state) {
+    //   return state.menuItems
+    // },
     getAccessToken(){
       return VueCookies.get('token');
     },

@@ -33,30 +33,40 @@ axios.interceptors.response.use(function (response) {
   }, async function (err) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
+    
     const originalConfig = err.config;
     if (originalConfig.url !== "/api/auth/signin" && err.response) {
       // Access Token was expired
-      if (err.response.status === 401 && !originalConfig._retry) {
-        originalConfig._retry = true;
+      if (err.response.status === 401 && !originalConfig.retry) {
+        originalConfig.retry = true;
 
-        try {
-          await axios.post("/api/auth/refreshtoken", {
+        // try {
+          let res = await axios.post("/api/auth/refreshtoken", {
             refreshToken: store.getters.getRefreshToken,
-          }).then((res) => {
+          });
+          // .then(async (res) => {
             // const { accessToken } = res.data;
+            // console.log(res);
             const token = {
-              token: res.accessToken,
-              refreshToken: res.refreshToken
+              token: res.data.accessToken,
+              refreshToken: res.data.refreshToken
             }
+            // // console.log(originalConfig);
             //set token info in Vuecookies
-            store.dispatch('setToken', token);
+            await store.dispatch('setToken', token);
+            return await axios(originalConfig) 
 
-            return axios(originalConfig);
-          })
+            // return  axios(originalConfig)
+            // .then((data) => {
+            //   store.dispatch('setUser', data.data);
+            // }).catch((err) => {
+            //   alert(err);
+            // });
+          // })
           
-        } catch (_error) {
-          return Promise.reject(_error);
-        }
+        // } catch (_error) {
+        //   return Promise.reject(_error);
+        // }
       }
     }
     return Promise.reject(err);

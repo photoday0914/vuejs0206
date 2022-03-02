@@ -13,7 +13,7 @@
           <v-row class="pa-md-4 mx-lg-auto">
             <v-col cols="12" md="8">
               <h2>Name</h2>
-              <v-text-field :readonly="readonly1" v-model="getUser.username"></v-text-field>              
+              <v-text-field :readonly="readonly1" v-model="getUser.name"></v-text-field>              
               <span class="description">Your name appears on your Profile page, as your byline, and in your responses. It is a required field.</span>
             </v-col>
             <v-col cols="12" md="4" >
@@ -119,11 +119,7 @@
         readonly3: true,        
         switch1: true,
         isSelected: false,
-        image: '',
-        // username: 'myname',
-        // bio: null,
-        // email: 'photoday0914@protonmail.com',
-        // social_notification: false
+        image: '',       
       }
     },
     components: {
@@ -186,7 +182,10 @@
     },
     
     mounted() {
+      this.$Axios.get("/api/users/me").then((user) => {         
+         this.$store.dispatch('setUser', user.data);
       this.cancelChange()
+      });
     }
   }
 </script>

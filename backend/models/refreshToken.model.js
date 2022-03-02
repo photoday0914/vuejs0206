@@ -2,7 +2,7 @@ const config = require("../config/auth.config");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = (sequelize, Sequelize) => {
-  const RefreshToken = sequelize.define("refreshToken", {
+  const RefreshToken = sequelize.define("refreshtokens", {
     token: {
       type: Sequelize.STRING,
     },
@@ -18,18 +18,6 @@ module.exports = (sequelize, Sequelize) => {
     let expiredAt = new Date();
 
     expiredAt.setSeconds(expiredAt.getSeconds() + config.jwtRefreshExpiration);
-
-    // this.findOne({
-    //   where: {
-    //     userId: user.id
-    //   }
-    // }).then((row) => {
-    //   if (row) {
-        
-    //   }
-    // })
-    
-
     let _token = uuidv4();    
 
     let refreshToken = await this.create({
@@ -44,6 +32,16 @@ module.exports = (sequelize, Sequelize) => {
   RefreshToken.verifyExpiration = (token) => {
     return token.expiryDate.getTime() < new Date().getTime();
   };
+
+  RefreshToken.getUserId = async function (payload) {
+    let row = await this.findOne({
+      where: {
+        token: payload
+      }
+    })
+    if (row) return row.dataValues.userId;
+    
+  }
 
   return RefreshToken;
 };

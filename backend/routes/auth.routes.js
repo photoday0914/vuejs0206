@@ -5,6 +5,7 @@ const followController = require("../controllers/follow.controller");
 const postController = require("../controllers/post.controller");
 const clapController = require("../controllers/clap.controller");
 const hashtagController = require("../controllers/hashtag.controller");
+const commentController = require("../controllers/comment.controller");
 var passport = require('../config/passport.js');
 
 
@@ -30,10 +31,9 @@ module.exports = function(app) {
   app.get('/auth/google/callback', passport.authenticate('google'), authController.oauthSuccess);
 
   //User APIs
-  // app.get("/api/users/me", userController.getMe);
-  // app.put("/api/users/me", userController.putMe);
-
+  app.get("/api/users/me", [authJwt.verifyToken], userController.getMe);
   app.get("/api/users/:userId", [authJwt.verifyToken], userController.getUser);
+  
   app.put("/api/users/:userId", [authJwt.verifyToken], userController.putUser);
   app.delete("/api/users/:userId", [authJwt.verifyToken], userController.deleteUser);
   app.post('/api/users/avatar/:userId', userController.uploadAvatar);
@@ -55,12 +55,16 @@ module.exports = function(app) {
 
   app.post("/api/posts/:userId/respond", postController.postResponse);
   app.delete("/api/posts/:userId/respond", postController.deleteResponse);
+
   app.get("/api/posts/trending", postController.getTrending);
-  app.get("/api/posts/:offset", postController.getPosts);
-  app.get("/api/myposts/:userId", postController.getMyPosts);
+  app.get("/api/posts/offset/:offset", postController.getPostsWithOffset);
+  app.get("/api/posts/:userId", postController.getPosts);
   app.get("/api/post/:postId", postController.getPost);
+  app.get("/api/post/hashtag/:tagId", postController.getPostWithTag);
+
   //Search APIs- param:hashtag, keyword
   app.get("/api/users/:userId/search", postController.searchPost);
+  app.get("/api/search/:userId/:type", postController.search);
 
   //Claps APIs
   // app.get("/api/users/favorites/list", );
@@ -69,11 +73,17 @@ module.exports = function(app) {
   app.delete("/api/users/:userId/favorites/destroy", clapController.deleteClap); //type = 1=>comment
 
   //Hashtags APIs
-  app.get("/api/hashtags/:postId", hashtagController.getHashtags);
-  app.post("/api/hashtags/add", hashtagController.addHashtagToTable);
-  app.delete("/api/hashtags/remove", hashtagController.removeHashtagFromTable);
-  app.post("/api/posts/:userId/hashtag", hashtagController.addHashtagToPost);
-  app.delete("/api/posts/:userId/hashtag", hashtagController.deleteHashtagFromPost);
+  app.get("/api/hashtags/recommended", hashtagController.getRecommendedTags);
+  app.get("/api/hashtags/post/:postId", hashtagController.getHashtags);
+
+  // app.post("/api/hashtags/add", hashtagController.addHashtagToTable);
+  // app.delete("/api/hashtags/remove", hashtagController.removeHashtagFromTable);
+  // app.post("/api/posts/:userId/hashtag", hashtagController.addHashtagToPost);
+  // app.delete("/api/posts/:userId/hashtag", hashtagController.deleteHashtagFromPost);
+
+  //Comment APIs
+  app.post("/api/comment/:postId", commentController.createComment);
+  app.get("/api/comment/:postId", commentController.getComments);
 
   
 };

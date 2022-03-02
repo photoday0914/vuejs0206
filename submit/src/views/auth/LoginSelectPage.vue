@@ -20,9 +20,7 @@
                         </v-form>
                      </v-card-text>
                      <v-card-actions>
-                        <v-spacer class="pa-md-4 mx-lg-auto">
-                          <!-- <SocialLogin /> -->
-                          </v-spacer>
+                        <v-spacer class="pa-md-4 mx-lg-auto"><SocialLogin /></v-spacer>
                         <v-btn color="primary" @click="login()">Login</v-btn>
                         <router-link to="/register" tag="div">
                           <v-btn depressed href="/register">
@@ -35,16 +33,12 @@
             </v-layout>            
          </v-container>
       </v-content>
-    
-    
    </v-app>
 </template>
 
-
-
 <script>
 import axios from "axios";
-// import SocialLogin from '../../components/SocialLoginPage.vue'
+import SocialLogin from '../../components/SocialLoginPage.vue'
 import { mapMutations } from "vuex";
 
 // import { reactive } from "vue";
@@ -58,12 +52,11 @@ export default {
       // },
       form: {        
         loginEmail: "",
-      },
-      
+      }     
     };
   },
   components: {
-    // SocialLogin
+    SocialLogin
   },
 
   methods : {

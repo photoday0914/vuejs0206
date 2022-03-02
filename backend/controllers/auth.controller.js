@@ -18,6 +18,7 @@ module.exports = {
     User.create({
       name: req.body.name,
       email: req.body.email,
+      photo: "http://localhost:3000/uploads/avatar1.png"
       // confirmation_code: token
       // follower: bcrypt.hashSync(req.body.password, 8)
     })
@@ -100,7 +101,7 @@ module.exports = {
       
         res.status(200).send({
           id: user.id,
-          username: user.name,
+          name: user.name,
           email: user.email,
           bio: user.bio,
           photo: user.photo,
@@ -140,8 +141,8 @@ module.exports = {
         return;
       }
   
-      const user = await refreshToken.getUser();
-      let newAccessToken = jwt.sign({ id: user.id }, config.secret, {
+      let userId = await RefreshToken.getUserId(refreshToken.dataValues.token);
+      let newAccessToken = jwt.sign({ id: userId }, config.secret, {
         expiresIn: config.jwtExpiration,
       });
   
@@ -160,7 +161,7 @@ module.exports = {
       pathname:'http://localhost:8080/oauth-redirect',
       query: {
         id: req.info.user.id,
-        username: req.info.user.name,
+        name: req.info.user.name,
         email: req.info.user.email,
         bio:req.info.user.bio,
         photo: req.info.user.photo,

@@ -8,7 +8,7 @@ module.exports = {
     getFollowers(req, res) {
         Follow.findAll({
             where: {
-                follower_id: req.params.id
+                followed_id: req.params.id
             }
         })
         .then ((users) => {
@@ -19,7 +19,7 @@ module.exports = {
     getFollowing(req, res) {
         Follow.findAll({
             where: {
-                followed_id: req.params.id
+                follower_id: req.params.id
             }
         })
         .then (async (users) => {
@@ -27,10 +27,11 @@ module.exports = {
             for (let user of users){
                 await User.findOne({
                     where: {
-                        id: user.dataValues.id
+                        id: user.dataValues.followed_id
                     }
                 }).then (userinfo => {
-                    userinfos.push(userinfo.dataValues);
+                    if (userinfo)
+                        userinfos.push(userinfo.dataValues);
                 })
                 
             }
@@ -58,38 +59,67 @@ module.exports = {
     },
 
     deleteFollow(req, res) {
-        Follow.update({
-                following: 0
-            },
-            {
-                where: {
-                    follower_id: req.params.id,
-                    followed_id: req.params.target_id
-                }
+        Follow.destroy({
+            where: {
+                follower_id: req.params.id,
+                followed_id: req.params.target_id
             }
-        ).then((err) => {
-            User.findOne({
-                where: {
-                    id: req.params.target_id
-                }
-            })
-            .then((user) => {
-                User.update(
-                    {
-                        follower_count: user.follower_count - 1
-                    },
-                    {
-                        where: {
-                            id: req.params.target_id
-                        }
+        }).then(() => {
+            User.decrement(
+                ['follower_count'], 
+                {
+                    by: 1, 
+                    where: {
+                        id: req.params.target_id
                     }
-                )
-            })
-            
-            res.status(200).send ({
-                msg:"succesfully delete follow"
+                }
+            ).then (() => {
+                res.status(200).send ({
+                    msg:"delete"
+                });
+            }).catch(err => {
+                res.status(500).send ({
+                    msg:"follower count not updated"
+                });
             });
-        })
+            
+        }).catch(err => {
+            res.status(500).send ({
+                msg:err
+            });
+        });
+        // Follow.update({
+        //         following: 0
+        //     },
+        //     {
+        //         where: {
+        //             follower_id: req.params.id,
+        //             followed_id: req.params.target_id
+        //         }
+        //     }
+        // ).then((err) => {
+        //     User.findOne({
+        //         where: {
+        //             id: req.params.target_id
+        //         }
+        //     })
+        //     .then((user) => {
+        //         User.update(
+        //             {
+        //                 follower_count: user.follower_count - 1
+        //             },
+        //             {
+        //                 where: {
+        //                     id: req.params.target_id
+        //                 }
+        //             }
+        //         )
+        //     })
+            
+        //     res.status(200).send ({
+        //         msg:"succesfully delete follow"
+        //     });
+        // })
     },
 
     followUser(req, res) {
@@ -99,17 +129,17 @@ module.exports = {
                 followed_id: req.body.followed_id                
             }
         })
-        .then ((user) => {
-            if (!user) {
+        .then ((follow) => {
+            if (!follow) {
                 Follow.create({
                     follower_id: req.params.id, 
-                    followed_id: req.body.id,
+                    followed_id: req.body.followed_id,
                     following: 1
                 })
-                .then((user) => {
+                .then(() => {
                     User.findOne({
                         where: {
-                            id: req.body.id
+                            id: req.body.followed_id
                         }
                     })
                     .then((user) => {
@@ -119,7 +149,7 @@ module.exports = {
                             },
                             {
                                 where: {
-                                    id: req.params.target_id
+                                    id: req.body.followed_id
                                 }
                             }
                         ).then(() => {

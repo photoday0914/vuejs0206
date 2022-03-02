@@ -91,5 +91,17 @@ module.exports = {
             }
             res.status(200).send(buffer);
         })
+    },
+
+    getRecommendedTags(req, res) {
+        console.log(req);
+        Hashtag.findAll({   
+            // where:{
+            //     id:req.params.postId
+            // },        
+            limit: 5,
+        }).then((rows) => {
+            res.status(200).send(rows);
+        })
     }
 }

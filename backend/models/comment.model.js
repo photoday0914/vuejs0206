@@ -4,11 +4,23 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         defaultValue: 0
       },
-      comment_id: {
+      // comment_id: {
+      //   type: Sequelize.INTEGER,
+      //   defaultValue: 0
+      // },
+      user_id: {
         type: Sequelize.INTEGER,
         defaultValue: 0
       },
-      user_id: {
+      content: {
+        type: Sequelize.STRING,
+        defaultValue: null
+      },
+      lft: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      },
+      rgt: {
         type: Sequelize.INTEGER,
         defaultValue: 0
       },

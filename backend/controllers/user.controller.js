@@ -1,5 +1,6 @@
 //Create
-const { user } = require("../config/auth.config");
+// const { user } = require("../config/auth.config");
+const config = require("../config/auth.config.js");
 const db = require("../models");
 const { user: User, refreshToken: RefreshToken, follow: Follow } = db;
 
@@ -16,13 +17,27 @@ module.exports = {
         .then((user) => {
             if (!user) {
                 return res.status(404).send({ message: "User Not found." });
-              }
-            res.status(200).send({
-                id: user.id,
-                username: user.name,
-                email: user.email                
-              });  
+            }
+            res.status(200).send(user);  
+        }).catch ((err) => {
+            return res.status(500).send({ message: err });
         });
+    },
+
+    getMe(req, res) {
+        User.findOne({
+            where : {
+                id : req.userId
+            }
+        })
+        .then((user) => {
+            if (!user) {
+                return res.status(404).send({ message: "User Not found." });
+              }
+            res.status(200).send(user);  
+        }).catch ((err) => {
+            return res.status(500).send({ message: err });
+          });
     },
     
     putUser (req, res) {
@@ -61,5 +76,7 @@ module.exports = {
 
     uploadImage(req, res){
         upload.uploadFile(req, res);
-    }
+    },
+
+  
 }

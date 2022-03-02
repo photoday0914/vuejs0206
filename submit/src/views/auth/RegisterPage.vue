@@ -13,6 +13,13 @@
                            <v-text-field
                               id="loginEmail"                        
                               name="email"
+                              label="Name"
+                              type="text"
+                              v-model="form.loginName"
+                           ></v-text-field>
+                           <v-text-field
+                              id="loginEmail"                        
+                              name="email"
                               label="Email"
                               type="text"
                               v-model="form.loginEmail"
@@ -39,14 +46,15 @@ export default {
     return {
       form: {
         loginEmail: "",
+        loginName: "",
       }
     };
   },
 
   methods : {
-    Register() {
+    register() {
       const args = {
-        // loginId: state.form.loginId,
+        name: this.form.loginName,
         email: this.form.loginEmail,
       };
 

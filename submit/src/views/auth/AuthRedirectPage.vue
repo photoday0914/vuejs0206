@@ -1,10 +1,6 @@
 <template>
 <v-app>
-   <v-card
-   color="grey lighten-4"
-   flat   
-   tile
-   >
+   <v-card color="grey lighten-4" flat  tile>
       <v-toolbar dense>                 
          <v-toolbar-title ><div class="font-weight-medium">Medium</div></v-toolbar-title>         
          <v-spacer></v-spacer>
@@ -57,7 +53,7 @@ import router from '../../router'
 
             const user = {
                id : res.data.id,
-               username: res.data.username,
+               name: res.data.name,
                email: res.data.email,
                bio: res.data.bio,
                social_notification: false,

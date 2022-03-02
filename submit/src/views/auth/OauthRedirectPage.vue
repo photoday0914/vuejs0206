@@ -26,7 +26,7 @@ export default {
       
       const user = {
           id : urlParams.get('id'),
-          username: urlParams.get('username'),
+          username: urlParams.get('name'),
           email: urlParams.get('email'),
           bio: urlParams.get('bio'),
           social_notification: false

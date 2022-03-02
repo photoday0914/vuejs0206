@@ -33,7 +33,7 @@
                           </v-container>
                           <v-file-input hide-input accept="image/png, image/jpeg, image/bmp" v-model="chosenfile" @change="uploadImage(commands.image)">                              
                           </v-file-input>
-                        </div>   
+                        </div>
                     </editor-menu-bar>
                   </v-row>
                   <v-row>
@@ -61,9 +61,10 @@
             </v-col>
             <v-col cols="12" md="2"></v-col>
         </v-row>
+        
         <v-container >
           <v-col align="center">
-            <v-btn large rounded color="primary" dark @click="updatePost">
+            <v-btn rounded color="primary" dark @click="postPost">
               Publish
             </v-btn>
           </v-col>
@@ -78,10 +79,10 @@ import { Heading,
         Bold, 
         Underline,
         Image } from 'tiptap-extensions';
-import Header from '../components/Header.vue'
-import Bubble from '../components/Bubble.vue'
+import Header from '../../components/Header.vue'
+import Bubble from '../../components/Bubble.vue'
 import { mapGetters} from "vuex";
-// import router from '../router';
+import router from '../../router'
 // import { Heading, Underline} from 'tiptap-extensions';
 export default {
   components: {
@@ -101,30 +102,21 @@ export default {
       items: [],
     }
   },
-  async mounted() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const postId = urlParams.get('postId')
-   
-    // let postId = this.$route.query.postId
-    const {data} = await this.$Axios.get('http://localhost:3000/api/post/'+postId);
-    this.content2 = data.content;
-    // console.log("data:"+data);
-    this.editor = new Editor({
-      content: data.content,
-      extensions:[
-          new Heading({levels: [1,2,3]}),
-          new Bold(),
-          new Underline(),
-          new Image(),
-      ],
-      onUpdate:({getHTML}) => {
-        this.content2 = getHTML();
-        
-      }
-    });
-    this.getHashtags(postId);
+  mounted() {
     
+    this.editor = new Editor({
+        content: '',
+        extensions:[
+            new Heading({levels: [1,2,3]}),
+            new Bold(),
+            new Underline(),
+            new Image(),
+        ],
+        onUpdate:({getHTML}) => {
+          this.content2 = getHTML();
+          console.log(this.content2)
+        }
+      })
   },
   computed: {
     ...mapGetters(['getUser', 'getStoryTitle','getStoryContent'])      
@@ -147,7 +139,7 @@ export default {
               'Content-Type': 'multipart/form-data'
               }
             });
-            // console.log('Write:' + data.photo);
+            
           command({src: data.photo});
           // this.$store.dispatch('setAvatar', data.photo)
         } catch(err) {
@@ -155,28 +147,18 @@ export default {
         }
       },
 
-      async updatePost() {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const postId = urlParams.get('postId')
+      async postPost() {
         const body = {
           title: this.getStoryTitle,
           content: this.content2,
           hashtags: this.chips
         }
-        // console.log('http://localhost:3000/api/post/update/'+postId);
-        await this.$Axios.post('http://localhost:3000/api/post/update/'+postId, body)
-      },
-
-      remove (item) {
-        this.chips.splice(this.chips.indexOf(item), 1)
-        this.chips = [...this.chips]
-      },
-      // "/api/hashtags/:postId"
-      async getHashtags(postId) {
-        const {data} = await this.$Axios.get("http://localhost:3000/api/hashtags/"+postId);
-        console.log(data);
-        this.chips = data;
+        // console.log(this.chips);
+        
+        await this.$Axios.post('http://localhost:3000/api/posts/'.concat(this.getUser.id), body)
+        router.push('/stories')
+        // console.log(this.content2);
+        // console.log(this.getStoryTitle);
       }
   }
 }
