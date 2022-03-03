@@ -91,9 +91,11 @@
                                                         </template>
                                                         <v-row dense align="center">
                                                             <v-col cols="12" md="1">
-                                                                <v-avatar class="ma-2">
-                                                                    <v-img :src="user.photo"></v-img>
-                                                                </v-avatar>
+                                                                <v-btn fab dark class="mx-2" >
+                                                                    <v-avatar class="ma-2" @click="showProfile(user.id)">
+                                                                        <v-img :src="user.photo"></v-img>
+                                                                    </v-avatar>
+                                                                </v-btn>
                                                             </v-col>
                                                              <v-col cols="12" md="2">
                                                                 <v-container>
@@ -251,12 +253,16 @@ export default {
             router.push('/view?postId='+postId);
         },
 
+        showProfile(userId) {
+            router.push('/public-profile?postUserId='+userId);
+        },
+
         changeTab() {
-           console.log(this.items[this.tab]);
+        //    console.log(this.items[this.tab]);
             this.$Axios.get('/api/search/'+this.getUser.id+'/'+this.tab+'?keyword='+this.keyword).then((res) => {
                 switch (this.tab){
                     case 0:
-                        this.posts = res.data;console.log(res.data);break;
+                        this.posts = res.data;break;
                     case 1:
                         this.users = res.data;break;
                     case 2:

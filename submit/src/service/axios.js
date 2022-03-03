@@ -1,6 +1,7 @@
 import axios from 'axios';
 import VueCookies from 'vue-cookies';
 import store from '../store'
+import router from '../router'
 // import { mapGetters } from 'vuex';
 // import { refreshToken } from '../service/login'
 
@@ -36,6 +37,10 @@ axios.interceptors.response.use(function (response) {
     
     const originalConfig = err.config;
     if (originalConfig.url !== "/api/auth/signin" && err.response) {
+      if (err.response.status == 403) {
+        store.dispatch("removeToken");
+        router.push('/login');
+      }   
       // Access Token was expired
       if (err.response.status === 401 && !originalConfig.retry) {
         originalConfig.retry = true;
@@ -44,6 +49,7 @@ axios.interceptors.response.use(function (response) {
           let res = await axios.post("/api/auth/refreshtoken", {
             refreshToken: store.getters.getRefreshToken,
           });
+          
           // .then(async (res) => {
             // const { accessToken } = res.data;
             // console.log(res);

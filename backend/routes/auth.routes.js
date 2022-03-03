@@ -36,45 +36,45 @@ module.exports = function(app) {
   
   app.put("/api/users/:userId", [authJwt.verifyToken], userController.putUser);
   app.delete("/api/users/:userId", [authJwt.verifyToken], userController.deleteUser);
-  app.post('/api/users/avatar/:userId', userController.uploadAvatar);
+  app.post('/api/users/avatar/:userId',[authJwt.verifyToken], userController.uploadAvatar);
 
   //Follow APIs
-  app.post("/api/users/:id/follow", followController.followUser);
-  app.get("/api/users/:id/followers", followController.getFollowers);  
-  app.get("/api/users/:id/following", followController.getFollowing);
-  app.delete("/api/users/:id/follow/:target_id", followController.deleteFollow);//check is id is user himself ???
-  app.get("/api/users/:id/follow/:target_id", followController.getFollow);
+  app.post("/api/users/:id/follow", [authJwt.verifyToken], followController.followUser);
+  app.get("/api/users/:id/followers", [authJwt.verifyToken], followController.getFollowers);  
+  app.get("/api/users/:id/following", [authJwt.verifyToken], followController.getFollowing);
+  app.delete("/api/users/:id/follow/:target_id", [authJwt.verifyToken], followController.deleteFollow);//check is id is user himself ???
+  app.get("/api/users/:id/follow/:target_id", [authJwt.verifyToken], followController.getFollow);
 
  
 
   //Posts APIs
-  app.post("/api/posts/:userId", postController.postPost);
-  app.delete("/api/post/:postId", postController.deletePost);
-  app.post('/api/post/update/:postId', postController.updatePost);
-  app.post('/api/users/upload/:userId', userController.uploadImage);
+  app.post("/api/posts/:userId", [authJwt.verifyToken], postController.postPost);
+  app.delete("/api/post/:postId", [authJwt.verifyToken], postController.deletePost);
+  app.post('/api/post/update/:postId', [authJwt.verifyToken], postController.updatePost);
+  app.post('/api/users/upload/:userId', [authJwt.verifyToken], userController.uploadImage);
 
-  app.post("/api/posts/:userId/respond", postController.postResponse);
-  app.delete("/api/posts/:userId/respond", postController.deleteResponse);
+  app.post("/api/posts/:userId/respond", [authJwt.verifyToken], postController.postResponse);
+  app.delete("/api/posts/:userId/respond", [authJwt.verifyToken], postController.deleteResponse);
 
-  app.get("/api/posts/trending", postController.getTrending);
-  app.get("/api/posts/offset/:offset", postController.getPostsWithOffset);
-  app.get("/api/posts/:userId", postController.getPosts);
-  app.get("/api/post/:postId", postController.getPost);
-  app.get("/api/post/hashtag/:tagId", postController.getPostWithTag);
+  app.get("/api/posts/trending", [authJwt.verifyToken], postController.getTrending);
+  app.get("/api/posts/offset/:offset", [authJwt.verifyToken], postController.getPostsWithOffset);
+  app.get("/api/posts/:userId", [authJwt.verifyToken], postController.getPosts);
+  app.get("/api/post/:postId", [authJwt.verifyToken], postController.getPost);
+  app.get("/api/post/hashtag/:tagId", [authJwt.verifyToken], postController.getPostWithTag);
 
   //Search APIs- param:hashtag, keyword
-  app.get("/api/users/:userId/search", postController.searchPost);
-  app.get("/api/search/:userId/:type", postController.search);
+  app.get("/api/users/:userId/search", [authJwt.verifyToken], postController.searchPost);
+  app.get("/api/search/:userId/:type", [authJwt.verifyToken], postController.search);
 
   //Claps APIs
   // app.get("/api/users/favorites/list", );
-  app.get("/api/users/:userId/favorites/:postId", clapController.getClap);
-  app.post("/api/users/:userId/favorites/create", clapController.createClap); //type = 1=>comment
-  app.delete("/api/users/:userId/favorites/destroy", clapController.deleteClap); //type = 1=>comment
+  app.get("/api/users/:userId/favorites/:postId", [authJwt.verifyToken], clapController.getClap);
+  app.post("/api/users/:userId/favorites/create", [authJwt.verifyToken], clapController.createClap); //type = 1=>comment
+  app.delete("/api/users/:userId/favorites/destroy", [authJwt.verifyToken], clapController.deleteClap); //type = 1=>comment
 
   //Hashtags APIs
-  app.get("/api/hashtags/recommended", hashtagController.getRecommendedTags);
-  app.get("/api/hashtags/post/:postId", hashtagController.getHashtags);
+  app.get("/api/hashtags/recommended", [authJwt.verifyToken], hashtagController.getRecommendedTags);
+  app.get("/api/hashtags/post/:postId", [authJwt.verifyToken], hashtagController.getHashtags);
 
   // app.post("/api/hashtags/add", hashtagController.addHashtagToTable);
   // app.delete("/api/hashtags/remove", hashtagController.removeHashtagFromTable);
@@ -82,8 +82,8 @@ module.exports = function(app) {
   // app.delete("/api/posts/:userId/hashtag", hashtagController.deleteHashtagFromPost);
 
   //Comment APIs
-  app.post("/api/comment/:postId", commentController.createComment);
-  app.get("/api/comment/:postId", commentController.getComments);
+  app.post("/api/comment/:postId", [authJwt.verifyToken],  commentController.createComment);
+  app.get("/api/comment/:postId", [authJwt.verifyToken], commentController.getComments);
 
   
 };

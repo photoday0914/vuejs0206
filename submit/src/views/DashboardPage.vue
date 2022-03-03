@@ -130,24 +130,17 @@
       return {
          posts: [],
          loadNum: 0,
-         followings: [
-        
-         ],
+         followings: [],
          hashtags:[],
          isActive: false,
-
          tab: null,        
-         items: [
-            'Main', 'Extra', 
-         ],
-         loading: false,
-         
+         items: ['Main', 'Extra',],
+         loading: false,         
       }
    },
 
    computed: {
-      ...mapGetters(['getUser']),
-     
+      ...mapGetters(['getUser']),     
    },
 
    components: {
@@ -199,7 +192,7 @@
       },
 
       getFollowing() {
-         console.log("getFollowing:"+this.getUser.id); 
+         // console.log("getFollowing:"+this.getUser.id); 
          //  console.log('http://localhost:3000/api/users/'+this.getUser.id+'/following');
           this.$Axios.get('http://localhost:3000/api/users/'+this.getUser.id+'/following')
          .then(res => {                    

@@ -128,13 +128,14 @@ module.exports = {
       console.log(refreshToken)
   
       if (!refreshToken) {
+        // res.redirect('http://localhost:8080/login')
         res.status(403).json({ message: "Refresh token is not in database!" });
         return;
       }
   
       if (RefreshToken.verifyExpiration(refreshToken)) {
         RefreshToken.destroy({ where: { id: refreshToken.id } });
-        
+        // res.redirect('http://localhost:8080/login')
         res.status(403).json({
           message: "Refresh token was expired. Please make a new signin request",
         });

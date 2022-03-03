@@ -169,7 +169,7 @@
          showProfile(userId) {
             // router.push('/public-profile?postUserId='+userId);
             this.getAuthorInfo(userId);
-            if (this.postUserId == this.getUser.id) this.showFollowBtn = false;
+            if (userId == this.getUser.id) this.showFollowBtn = false;
             this.getPosts(userId);
         },
          
@@ -236,11 +236,16 @@
         });
     },
 
-},
+     //"/api/users/:id/follow/:target_id"
+    checkFollowing(followedId) {
+        this.$Axios.get('http://localhost:3000/api/users/'+this.getUser.id+'/follow/'+followedId).then((res) => {                
+            if (res.data.msg == 'exist') this.isFollow = true;
+        });
+    },
 
-    
+},    
 
-   mounted() {    
+mounted() {    
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     this.postUserId = urlParams.get('postUserId');
@@ -251,6 +256,7 @@
          this.$store.dispatch('setUser', res.data);
          this.getAuthorInfo(this.postUserId);
          if (this.postUserId == this.getUser.id) this.showFollowBtn = false;
+         else this.checkFollowing(this.postUserId);
          
       }).catch((err) => {
          console.log(err);
